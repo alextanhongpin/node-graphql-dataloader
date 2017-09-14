@@ -1,28 +1,20 @@
-const {
-  graphql,
-  GraphQLSchema,
-  GraphQLObjectType,
-  GraphQLString
-} = require('graphql')
 
-console.log(graphql)
+const express = require('express')
+const graphqlHTTP = require('express-graphql')
+const schema = require('./schema')
+const loaders = require('./loader')
 
-const schema = new GraphQLSchema({
-  query: new GraphQLObjectType({
-    name: 'RootQueryType',
-    fields: {
-      hello: {
-        type: GraphQLString,
-        resolve () {
-          return 'hello world'
-        }
-      }
-    }
-  })
-})
+const port = process.env.PORT || 4000
+const app = express()
 
-const query = '{hello}'
+app.use('/graphql', graphqlHTTP({
+  schema,
+  graphiql: true,
+  context: {
+    loaders
+  }
+}))
 
-graphql(schema, query).then(result => {
-  console.log(result)
+app.listen(port, () => {
+  console.log(`listening to port *:${port}. press ctrl + c to cancel.`)
 })
